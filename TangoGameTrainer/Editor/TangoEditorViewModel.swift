@@ -8,6 +8,11 @@
 import SwiftUI
 import SwiftData
 
+enum LevelSaveError: Error {
+    case noDefaultCells
+    case saveFailed
+}
+
 @Observable
 class TangoEditorViewModel {
   var grid: [[TangoCell]]
@@ -28,11 +33,19 @@ class TangoEditorViewModel {
       self.verticalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none, isHorizontal: false), count: size), count: size - 1)
   }
 
-  func saveLevel() -> Bool {
-      guard !levelName.isEmpty else { return false }
+  func saveLevel() throws {
+      // Check if there are any default cells
+      let hasDefaultCells = grid.contains { row in
+          row.contains { cell in
+              cell.isDefault
+          }
+      }
+
+      guard hasDefaultCells else {
+          throw LevelSaveError.noDefaultCells
+      }
 
       let level = TangoLevel(
-          name: levelName,
           grid: grid,
           horizontalJunctions: horizontalJunctions,
           verticalJunctions: verticalJunctions,
@@ -40,8 +53,12 @@ class TangoEditorViewModel {
       )
 
       modelContext.insert(level)
-      try? modelContext.save()
-      return true
+
+      do {
+          try modelContext.save()
+      } catch {
+          throw LevelSaveError.saveFailed
+      }
   }
 
   func toggleCell(at position: (Int, Int)) {

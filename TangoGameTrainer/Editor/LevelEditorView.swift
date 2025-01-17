@@ -12,7 +12,8 @@ struct LevelEditorView: View {
   @Bindable var viewModel: TangoEditorViewModel
   @Environment(\.dismiss) var dismiss
   @State private var showingSaveAlert = false
-  @State private var saveError = false
+  @State private var saveError: LevelSaveError?
+  @State private var showingSaveError = false
 
   var body: some View {
     VStack {
@@ -50,32 +51,48 @@ struct LevelEditorView: View {
       GridView(viewModel: viewModel)
 
       if !viewModel.isPlaying {
-        Button("Save Level") {
-          if viewModel.saveLevel() {
-            showingSaveAlert = true
-          } else {
-            saveError = true
+          Button("Save Level") {
+              do {
+                  try viewModel.saveLevel()
+                  showingSaveAlert = true
+              } catch let error as LevelSaveError {
+                  saveError = error
+                  showingSaveError = true
+              } catch {
+                  saveError = .saveFailed
+                  showingSaveError = true
+              }
           }
-        }
-        .buttonStyle(.borderedProminent)
-        .padding()
+          .buttonStyle(.borderedProminent)
+          .padding()
       }
 
       Spacer()
     }
     .alert("Success", isPresented: $showingSaveAlert) {
-      Button("OK") {
-        dismiss()
-      }
-    } message: {
-      Text("Level saved successfully!")
-    }
-    .alert("Error", isPresented: $saveError) {
-      Button("OK", role: .cancel) { }
-    } message: {
-      Text("Please provide a level name.")
-    }
-  }
+         Button("OK") {
+             dismiss()
+         }
+     } message: {
+         Text("Level saved successfully!")
+     }
+     .alert("Error", isPresented: $showingSaveError) {
+         Button("OK", role: .cancel) { }
+     } message: {
+         Text(errorMessage)
+     }
+ }
+
+ private var errorMessage: String {
+     switch saveError {
+     case .noDefaultCells:
+         return "Please place at least one default cell in the level."
+     case .saveFailed:
+         return "Failed to save the level. Please try again."
+     case .none:
+         return "An unknown error occurred."
+     }
+ }
 }
 
 struct GridView: View {
@@ -145,6 +162,10 @@ struct JunctionView: View {
   }
 }
 
-//#Preview(body: {
-//  LevelEditorView(viewModel: TangoEditorViewModel())
-//})
+#Preview {
+  PreviewContainer.shared.container {
+    let context = PreviewContainer.shared.modelContext
+    let sampleLevel = try! context.fetch(FetchDescriptor<TangoLevel>()).first!
+    LevelEditorView(viewModel: TangoEditorViewModel(modelContext: context))
+  }
+}

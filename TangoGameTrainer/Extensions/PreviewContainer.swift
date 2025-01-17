@@ -28,7 +28,6 @@ class PreviewContainer {
 
             // Create some sample levels
             let sampleLevel = TangoLevel(
-                name: "Sample Level",
                 grid: Array(repeating: Array(repeating: TangoCell(type: .empty, isDefault: true), count: 6), count: 6),
                 horizontalJunctions: Array(repeating: Array(repeating: Junction(symbol: .equal, isHorizontal: true), count: 5), count: 6),
                 verticalJunctions: Array(repeating: Array(repeating: Junction(symbol: .opposite, isHorizontal: false), count: 6), count: 5),
