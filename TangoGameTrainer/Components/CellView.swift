@@ -36,3 +36,7 @@ struct CellView: View {
     }
   }
 }
+
+#Preview {
+  CellView(cell: TangoCell(type: .sun, isDefault: false))
+}

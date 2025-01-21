@@ -49,7 +49,7 @@ struct LevelEditorView: View {
         .padding(.horizontal)
       }
 
-      GridView(viewModel: viewModel)
+      EditorGridView(viewModel: viewModel)
 
       if !viewModel.isPlaying {
           Button("Save Level") {
@@ -115,7 +115,7 @@ struct LevelEditorView: View {
  }
 }
 
-struct GridView: View {
+struct EditorGridView: View {
   let viewModel: TangoEditorViewModel
 
   var body: some View {
@@ -130,7 +130,7 @@ struct GridView: View {
               }
 
             if column < 5 {
-              JunctionView(
+              EditorJunctionView(
                 junction: viewModel.horizontalJunctions[row][column], isEditable: true,
                 onTap: {
                   viewModel.toggleHorizontalJunction(row: row, column: column)
@@ -143,7 +143,7 @@ struct GridView: View {
         if row < 5 {
           HStack(spacing: 1) {
             ForEach(0..<6) { column in
-              JunctionView(
+              EditorJunctionView(
                 junction: viewModel.verticalJunctions[row][column], isEditable: true,
                 onTap: {
                   viewModel.toggleVerticalJunction(row: row, column: column)
@@ -163,7 +163,7 @@ struct GridView: View {
   }
 }
 
-struct JunctionView: View {
+struct EditorJunctionView: View {
   let junction: Junction
   let isEditable: Bool
   var onTap: (() -> Void)? = nil

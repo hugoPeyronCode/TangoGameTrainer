@@ -12,6 +12,8 @@ import SwiftData
 @Observable
 class TangoViewModel {
   var grid: [[TangoCell]]
+  var horizontalJunctions: [[Junction]]
+  var verticalJunctions: [[Junction]]
   var elapsedTime: TimeInterval = 0
   var hasWon: Bool = false
   var hasStarted: Bool = false
@@ -21,12 +23,14 @@ class TangoViewModel {
   private let modelContext: ModelContext
   
   init(level: TangoLevel, modelContext: ModelContext) {
-    self.level = level
-    self.modelContext = modelContext
-    self.grid = level.grid // Load initial grid state from level
-    startTimer()
+      self.level = level
+      self.modelContext = modelContext
+      self.grid = level.grid
+      self.horizontalJunctions = level.horizontalJunctions
+      self.verticalJunctions = level.verticalJunctions
+      startTimer()
   }
-  
+
   func startTimer() {
     timer?.invalidate() // Clear any existing timer
     timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in

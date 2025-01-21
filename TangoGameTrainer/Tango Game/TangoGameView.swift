@@ -96,19 +96,17 @@ struct GameView: View {
   }
 }
 
+// Main grid view
 struct GameGridView: View {
   let viewModel: TangoViewModel
 
   var body: some View {
-    VStack(spacing: 0) {  // Remove spacing between rows
+    VStack(spacing: 0) { // Remove spacing between rows
       ForEach(0..<6) { row in
-        HStack(spacing: 0) {  // Remove spacing between cells
+        HStack(spacing: 0) { // Remove spacing between cells
           ForEach(0..<6) { column in
             CellView(cell: viewModel.grid[row][column])
               .frame(width: 50, height: 50)
-              .onTapGesture {
-                viewModel.toggleCell(at: (row, column))
-              }
               .overlay(alignment: .trailing) {
                 if column < 5 {
                   // Horizontal junction
@@ -116,8 +114,6 @@ struct GameGridView: View {
                         viewModel.horizontalJunctions[row][column].symbol == .opposite ? "×" : "")
                   .font(.system(size: 14, weight: .medium))
                   .foregroundStyle(Color.brown.opacity(0.6))
-                  .frame(width: 16, height: 16)
-                  .background(.white)
                 }
               }
               .overlay(alignment: .bottom) {
@@ -127,21 +123,103 @@ struct GameGridView: View {
                         viewModel.verticalJunctions[row][column].symbol == .opposite ? "×" : "")
                   .font(.system(size: 14, weight: .medium))
                   .foregroundStyle(Color.brown.opacity(0.6))
-                  .frame(width: 16, height: 16)
-                  .background(.white)
                 }
+              }
+              .onTapGesture {
+                viewModel.toggleCell(at: (row, column))
               }
           }
         }
       }
     }
-    .background(Color.white)
-    .clipShape(RoundedRectangle(cornerRadius: 8))
+    .background(.white)
+    .clipShape(RoundedRectangle(cornerRadius: 12))
     .overlay(
-      RoundedRectangle(cornerRadius: 8)
+      RoundedRectangle(cornerRadius: 12)
         .stroke(Color.gray.opacity(0.2), lineWidth: 1)
     )
     .padding()
+  }
+}
+
+// Single row of cells with horizontal junctions
+struct GridRow: View {
+  let viewModel: TangoViewModel
+  let row: Int
+
+  var body: some View {
+    HStack(spacing: 1) {
+      ForEach(0..<6) { column in
+        CellView(cell: viewModel.grid[row][column])
+          .frame(width: 50, height: 50)
+          .overlay(content: {
+            if column < 5 {
+              GameJunctionView(
+                junction: viewModel.horizontalJunctions[row][column],
+                isEditable: false
+              )
+            }
+          })
+          .onTapGesture {
+            viewModel.toggleCell(at: (row, column))
+          }
+
+      }
+    }
+  }
+}
+
+// Row of vertical junctions
+struct VerticalJunctionsRow: View {
+  let viewModel: TangoViewModel
+  let row: Int
+
+  var body: some View {
+    HStack(spacing: 1) {
+      ForEach(0..<6) { column in
+        GameJunctionView(
+          junction: viewModel.verticalJunctions[row][column],
+          isEditable: false
+        )
+
+        if column < 5 {
+          Color.clear
+            .frame(width: 16, height: 16)
+        }
+      }
+    }
+  }
+}
+
+// Simplified Junction View
+struct GameJunctionView: View {
+  let junction: Junction
+  let isEditable: Bool
+
+  var body: some View {
+    Text(junction.symbol == .equal ? "=" : junction.symbol == .opposite ? "×" : "")
+      .font(.system(size: 14))
+      .frame(width: 16, height: 16)
+      .background(.white)
+  }
+}
+
+struct JunctionSymbolView: View {
+  let symbol: JunctionSymbol
+
+  var symbolText: String {
+    switch symbol {
+    case .equal: return "="
+    case .opposite: return "×"
+    case .none: return " "  // Using space to maintain layout
+    }
+  }
+
+  var body: some View {
+    Text(symbolText)
+      .font(.system(size: 14, weight: .medium))
+      .foregroundStyle(Color.brown.opacity(0.8))
+      .frame(width: 16, height: 16)  // Fixed size even when empty
   }
 }
 
