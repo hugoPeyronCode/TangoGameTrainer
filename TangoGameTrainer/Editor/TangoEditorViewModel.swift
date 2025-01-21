@@ -9,56 +9,70 @@ import SwiftUI
 import SwiftData
 
 enum LevelSaveError: Error {
-    case noDefaultCells
-    case saveFailed
+  case noDefaultCells
+  case saveFailed
 }
 
 @Observable
 class TangoEditorViewModel {
   var grid: [[TangoCell]]
+  var size: Int
   var horizontalJunctions: [[Junction]]
   var verticalJunctions: [[Junction]]
-  var isPlacingDefault = false
+  var isPlacingDefault = true
   var isPlacingJunction = false
   var isPlaying = false
   var levelName: String = ""
   var selectedDifficulty: TangoLevelDifficulty = .medium
+  var hasDefaultCells: Bool { grid.contains { row in row.contains { cell in
+    cell.isDefault
+  }} }
 
   private let modelContext: ModelContext
 
   init(modelContext: ModelContext, size: Int = 6) {
-      self.modelContext = modelContext
-      self.grid = Array(repeating: Array(repeating: TangoCell(), count: size), count: size)
-      self.horizontalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none, isHorizontal: true), count: size - 1), count: size)
-      self.verticalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none, isHorizontal: false), count: size), count: size - 1)
+    self.modelContext = modelContext
+    self.size = size
+    self.grid = Array(repeating: Array(repeating: TangoCell(), count: size), count: size)
+    self.horizontalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none, isHorizontal: true), count: size - 1), count: size)
+    self.verticalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none, isHorizontal: false), count: size), count: size - 1)
   }
 
+  func reset() {
+    grid = Array(repeating: Array(repeating: TangoCell(), count: size), count: size)
+
+    horizontalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none, isHorizontal: true), count: size - 1), count: size)
+
+    verticalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none, isHorizontal: false), count: size), count: size - 1)
+
+    isPlaying = false
+    isPlacingJunction = false
+    isPlacingDefault = true
+    levelName = ""
+    selectedDifficulty = .medium
+  }
+
+
   func saveLevel() throws {
-      // Check if there are any default cells
-      let hasDefaultCells = grid.contains { row in
-          row.contains { cell in
-              cell.isDefault
-          }
-      }
 
-      guard hasDefaultCells else {
-          throw LevelSaveError.noDefaultCells
-      }
+    guard hasDefaultCells else {
+      throw LevelSaveError.noDefaultCells
+    }
 
-      let level = TangoLevel(
-          grid: grid,
-          horizontalJunctions: horizontalJunctions,
-          verticalJunctions: verticalJunctions,
-          difficulty: selectedDifficulty
-      )
+    let level = TangoLevel(
+      grid: grid,
+      horizontalJunctions: horizontalJunctions,
+      verticalJunctions: verticalJunctions,
+      difficulty: selectedDifficulty
+    )
 
-      modelContext.insert(level)
+    modelContext.insert(level)
 
-      do {
-          try modelContext.save()
-      } catch {
-          throw LevelSaveError.saveFailed
-      }
+    do {
+      try modelContext.save()
+    } catch {
+      throw LevelSaveError.saveFailed
+    }
   }
 
   func toggleCell(at position: (Int, Int)) {

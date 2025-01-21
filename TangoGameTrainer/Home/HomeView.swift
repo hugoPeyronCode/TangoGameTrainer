@@ -95,12 +95,9 @@ struct LevelRow: View {
   }
 }
 
+
 #Preview {
   PreviewContainer.shared.container {
     HomeView()
   }
-}
-
-#Preview {
-  HomeView()
 }

@@ -14,6 +14,7 @@ struct LevelEditorView: View {
   @State private var showingSaveAlert = false
   @State private var saveError: LevelSaveError?
   @State private var showingSaveError = false
+  @State private var showingResetAlert = false
 
   var body: some View {
     VStack {
@@ -65,8 +66,19 @@ struct LevelEditorView: View {
           }
           .buttonStyle(.borderedProminent)
           .padding()
-      }
 
+        Button {
+          showingResetAlert.toggle()
+        } label: {
+          Image(systemName: viewModel.hasDefaultCells ? "eraser.fill" : "eraser")
+            .foregroundStyle(viewModel.hasDefaultCells ? .red : .gray)
+            .font(.title)
+            .bold()
+        }
+        .disabled(!viewModel.hasDefaultCells)
+        .animation(.easeIn, value: viewModel.hasDefaultCells)
+
+      }
       Spacer()
     }
     .alert("Success", isPresented: $showingSaveAlert) {
@@ -80,6 +92,14 @@ struct LevelEditorView: View {
          Button("OK", role: .cancel) { }
      } message: {
          Text(errorMessage)
+     }
+     .alert("Reset Level", isPresented: $showingResetAlert) {
+         Button("Cancel", role: .cancel) { }
+         Button("Reset", role: .destructive) {
+             viewModel.reset()
+         }
+     } message: {
+         Text("Are you sure you want to reset the level? This action cannot be undone.")
      }
  }
 
