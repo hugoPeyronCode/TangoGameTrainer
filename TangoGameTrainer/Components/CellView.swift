@@ -15,6 +15,7 @@ struct CellView: View {
       RoundedRectangle(cornerRadius: 0)
         .fill(cell.isDefault && cell.type != .empty ? Color.gray.opacity(0.05) : Color.white)
         .shadow(radius: 1)
+        .shadow(radius: 1)
         .overlay(
           RoundedRectangle(cornerRadius: 0)
             .stroke(cell.isWrong ? Color.red : Color.clear, lineWidth: 2)
