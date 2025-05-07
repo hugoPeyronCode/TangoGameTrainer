@@ -37,7 +37,6 @@ struct TangoCell: Identifiable, Codable {
 struct Junction: Identifiable, Codable {
   let id = UUID()
   var symbol: JunctionSymbol
-  var isHorizontal: Bool
 }
 
 enum TangoLevelDifficulty: Int, Codable {

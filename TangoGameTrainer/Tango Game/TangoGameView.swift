@@ -96,12 +96,88 @@ struct GameView: View {
   }
 }
 
+struct HorizontalJunctionsLayer: View {
+  let junctions: [[Junction]]
+
+  var body: some View {
+    VStack(spacing: 0) {
+      ForEach(0..<6) { row in
+        HStack(spacing: 0) {
+          ForEach(0..<5) { column in
+            Color.clear
+              .frame(width: 50, height: 50)
+              .overlay(
+                JunctionSymbolView(
+                  symbol: junctions[row][column].symbol,
+                  isVertical: false
+                )
+              )
+              .allowsHitTesting(false)
+          }
+          Color.clear.frame(width: 50, height: 50)
+            .allowsHitTesting(false)
+        }
+      }
+    }
+  }
+}
+
+struct JunctionSymbolView: View {
+  let symbol: JunctionSymbol
+  let isVertical: Bool
+
+  var body: some View {
+    Group {
+      if symbol != .none {
+        Text(symbol == .equal ? "=" : "×")
+          .font(.system(size: 14, weight: .medium))
+          .foregroundStyle(Color.gray)
+          .frame(width: isVertical ? nil : 16, height: isVertical ? 16 : nil)
+          .background(
+            Circle()
+              .fill(.white)
+              .frame(width: 10, height: 10)
+          )
+          .offset(x: isVertical ? 0 : 25, y: isVertical ? 25 : 0)
+          .allowsHitTesting(false)
+      }
+    }
+  }
+}
+
+struct VerticalJunctionsLayer: View {
+  let junctions: [[Junction]]
+
+  var body: some View {
+    HStack(spacing: 0) {
+      ForEach(0..<6) { column in
+        VStack(spacing: 0) {
+          ForEach(0..<5) { row in
+            Color.clear
+              .frame(width: 50, height: 50)
+              .overlay(
+                JunctionSymbolView(
+                  symbol: junctions[row][column].symbol,
+                  isVertical: true
+                )
+              )
+              .allowsHitTesting(false)
+          }
+          Color.clear.frame(width: 50, height: 50)
+            .allowsHitTesting(false)
+        }
+      }
+    }
+  }
+}
+
+// Updated GameGridView using these components
 struct GameGridView: View {
   let viewModel: TangoViewModel
 
   var body: some View {
-    ZStack { // Main ZStack to layer symbols over cells
-      // Base grid layer
+    ZStack {
+      // Base grid of cells
       VStack(spacing: 0) {
         ForEach(0..<6) { row in
           HStack(spacing: 0) {
@@ -115,58 +191,14 @@ struct GameGridView: View {
           }
         }
       }
-
-      // Horizontal junctions layer
-      VStack(spacing: 0) {
-        ForEach(0..<6) { row in
-          HStack(spacing: 0) {
-            ForEach(0..<5) { column in
-              let symbol = viewModel.horizontalJunctions[row][column].symbol
-              Color.clear
-                .frame(width: 50, height: 50)
-                .overlay(
-                  Text(symbol == .equal ? "=" : symbol == .opposite ? "×" : "")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(Color.gray)
-                    .frame(width: 16)
-                    .background(
-                      Circle()
-                        .fill(.white)
-                        .frame(width: 10, height: 10)
-                    )
-                    .offset(x: 25)
-                )
-            }
-            Color.clear.frame(width: 50, height: 50)
-          }
+      HorizontalJunctionsLayer(junctions: viewModel.horizontalJunctions)
+        .onTapGesture {
+          print("horizontal tapped")
         }
-      }
-
-      // Vertical junctions layer
-      HStack(spacing: 0) {
-        ForEach(0..<6) { column in
-          VStack(spacing: 0) {
-            ForEach(0..<5) { row in
-              let symbol = viewModel.verticalJunctions[row][column].symbol
-              Color.clear
-                .frame(width: 50, height: 50)
-                .overlay(
-                  Text(symbol == .equal ? "=" : symbol == .opposite ? "×" : "")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(Color.gray)
-                    .frame(height: 16)
-                    .background(
-                      Circle()
-                        .fill(.white)
-                        .frame(width: 10, height: 10)
-                    )
-                    .offset(y: 25)
-                )
-            }
-            Color.clear.frame(width: 50, height: 50) // Last row spacer
-          }
+      VerticalJunctionsLayer(junctions: viewModel.verticalJunctions)
+        .onTapGesture {
+          print("vertical tapped")
         }
-      }
     }
     .background(Color.white)
     .clipShape(RoundedRectangle(cornerRadius: 12))

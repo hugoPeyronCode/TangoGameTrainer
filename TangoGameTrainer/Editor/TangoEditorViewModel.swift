@@ -34,16 +34,16 @@ class TangoEditorViewModel {
     self.modelContext = modelContext
     self.size = size
     self.grid = Array(repeating: Array(repeating: TangoCell(), count: size), count: size)
-    self.horizontalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none, isHorizontal: true), count: size - 1), count: size)
-    self.verticalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none, isHorizontal: false), count: size), count: size - 1)
+    self.horizontalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none), count: size - 1), count: size)
+    self.verticalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none), count: size), count: size - 1)
   }
 
   func reset() {
     grid = Array(repeating: Array(repeating: TangoCell(), count: size), count: size)
 
-    horizontalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none, isHorizontal: true), count: size - 1), count: size)
+    horizontalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none), count: size - 1), count: size)
 
-    verticalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none, isHorizontal: false), count: size), count: size - 1)
+    verticalJunctions = Array(repeating: Array(repeating: Junction(symbol: .none), count: size), count: size - 1)
 
     isPlaying = false
     isPlacingJunction = false

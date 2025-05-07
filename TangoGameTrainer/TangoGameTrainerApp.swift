@@ -30,3 +30,8 @@ struct TangoGameTrainerApp: App {
         .modelContainer(container)
     }
 }
+
+
+#Preview {
+  HomeView()
+}
